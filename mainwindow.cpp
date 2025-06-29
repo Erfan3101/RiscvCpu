@@ -1,5 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "memory.h"
+#include "registerfile.h"
+#include "simulator.h"
 #include <QLabel>
 #include <QPixmap>
 #include <QFileDialog>
