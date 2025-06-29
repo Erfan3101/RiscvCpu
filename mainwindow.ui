@@ -29,6 +29,29 @@
     <property name="styleSheet">
      <string notr="true">background-color: rgb(170, 170, 127);</string>
     </property>
+    <widget class="QLabel" name="labelPC">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>10</y>
+       <width>81</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>TextLabel</string>
+     </property>
+    </widget>
+    <widget class="QTableWidget" name="registerTable">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>256</width>
+       <height>192</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="addbutton">
     <property name="geometry">
@@ -41,6 +64,40 @@
     </property>
     <property name="styleSheet">
      <string notr="true">image: url(:/icons/addicon.png);
+background-color: rgb(255, 255, 127);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnStep">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>61</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/icons/setupicon.png);
+background-color: rgb(255, 255, 127);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnReset">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>153</y>
+      <width>61</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/icons/reseticon.png);
 background-color: rgb(255, 255, 127);</string>
     </property>
     <property name="text">

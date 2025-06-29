@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/icons">
         <file>addicon.png</file>
-        <file>test_program.bin</file>
+        <file>reseticon.png</file>
+        <file>setupicon.png</file>
     </qresource>
 </RCC>

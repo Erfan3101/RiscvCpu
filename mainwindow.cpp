@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include "memory.h"
 #include "registerfile.h"
-#include "simulator.h"
 #include <QLabel>
 #include <QPixmap>
 #include <QFileDialog>
@@ -14,7 +13,15 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->registerTable->setRowCount(32);
+       ui->registerTable->setColumnCount(2);
+       ui->registerTable->setHorizontalHeaderLabels({"Register", "Value"});
+       for (int i = 0; i < 32; ++i) {
+           ui->registerTable->setItem(i, 0, new QTableWidgetItem(QString("x%1").arg(i)));
+           ui->registerTable->setItem(i, 1, new QTableWidgetItem("0"));
+       }
 
+       updateStatus();
 }
 
 
@@ -62,3 +69,28 @@ void MainWindow::on_addbutton_clicked()
     // Now you can access binaryData and currentFilePath from other functions
 }
 
+
+void MainWindow::on_btnStep_clicked(){
+    sim.step();
+      updateRegisterView();
+      updateStatus();
+}
+
+
+void MainWindow::on_btnReset_clicked()
+{
+    sim = Simulator();
+    updateRegisterView();
+    updateStatus();
+}
+
+void MainWindow::updateRegisterView() {
+    for (int i = 0; i < 32; ++i) {
+        QString val = QString::number(sim.getRegisterValue(i));
+        ui->registerTable->item(i, 1)->setText(val);
+    }
+}
+
+void MainWindow::updateStatus() {
+    ui->labelPC->setText(QString("PC = 0x%1").arg(sim.getPC(), 8, 16, QLatin1Char('0')));
+}

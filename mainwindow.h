@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include "simulator.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -18,9 +18,18 @@ public:
 private slots:
      void on_addbutton_clicked();
 
+     void on_btnStep_clicked();
+
+     void on_btnReset_clicked();
+
 private:
     Ui::MainWindow *ui;
     QByteArray binaryData;        // Store the binary data for future processing
-       QString currentFilePath;     // Store the file path
+       QString currentFilePath;
+       Simulator sim;
+
+       void updateRegisterView();
+       void updateStatus();
+       // Store the file path
 };
 #endif // MAINWINDOW_H
