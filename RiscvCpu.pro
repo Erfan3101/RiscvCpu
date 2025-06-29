@@ -11,11 +11,13 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    memory.cpp
+    memory.cpp \
+    registerfile.cpp
 
 HEADERS += \
     mainwindow.h \
-    memory.h
+    memory.h \
+    registerfile.h
 
 FORMS += \
     mainwindow.ui
