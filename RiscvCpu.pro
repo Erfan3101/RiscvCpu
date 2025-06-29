@@ -12,12 +12,14 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     memory.cpp \
-    registerfile.cpp
+    registerfile.cpp \
+    simulator.cpp
 
 HEADERS += \
     mainwindow.h \
     memory.h \
-    registerfile.h
+    registerfile.h \
+    simulator.h
 
 FORMS += \
     mainwindow.ui
