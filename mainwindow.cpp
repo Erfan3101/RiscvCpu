@@ -163,19 +163,42 @@ void MainWindow::on_btnRunAll_clicked()
         QMessageBox::information(this, "Run Complete", "This is the end...");
 }
 
+QString decodeInstruction(uint32_t instr) {
+    uint32_t opcode = instr & 0x7F;
+    uint32_t rd = (instr >> 7) & 0x1F;
+    uint32_t funct3 = (instr >> 12) & 0x7;
+    uint32_t rs1 = (instr >> 15) & 0x1F;
+    uint32_t rs2 = (instr >> 20) & 0x1F;
+    uint32_t funct7 = (instr >> 25) & 0x7F;
+
+    switch (opcode) {
+        case 0x33: // R-type
+            if (funct3 == 0x0 && funct7 == 0x00) return QString("add x%1, x%2, x%3").arg(rd).arg(rs1).arg(rs2);
+            if (funct3 == 0x0 && funct7 == 0x20) return QString("sub x%1, x%2, x%3").arg(rd).arg(rs1).arg(rs2);
+            break;
+        case 0x13:
+            if (funct3 == 0x0) return QString("addi x%1, x%2, imm").arg(rd).arg(rs1);
+            break;
+    }
+    return "-";
+}
+
 void MainWindow::updateMemoryView(uint32_t startAddr, int count) {
     ui->memoryTable->setRowCount(count);
-    ui->memoryTable->setColumnCount(4);
-    ui->memoryTable->setHorizontalHeaderLabels({"Address", "Hex", "Decimal", "ASCII"});
+    ui->memoryTable->setColumnCount(5);
+    ui->memoryTable->setHorizontalHeaderLabels({"Address", "Hex", "Decimal", "ASCII", "Label"});
 
     for (int i = 0; i < count; ++i) {
         uint32_t addr = startAddr + i;
         uint8_t val = sim.memory1().load_byte(addr); // پیش‌فرض 0
-
+        uint32_t word = sim.memory1().load_word(addr & ~0x3); // هم‌ترازی برای دستور 4 بایتی
+        QString label = decodeInstruction(word);
         ui->memoryTable->setItem(i, 0, new QTableWidgetItem(QString("0x%1").arg(addr, 4, 16, QChar('0'))));
         ui->memoryTable->setItem(i, 1, new QTableWidgetItem(QString("0x%1").arg(val, 2, 16, QChar('0'))));
         ui->memoryTable->setItem(i, 2, new QTableWidgetItem(QString::number(val)));
         ui->memoryTable->setItem(i, 3, new QTableWidgetItem((val >= 32 && val <= 126) ? QString(QChar(val)) : "."));
+        ui->memoryTable->setItem(i, 4, new QTableWidgetItem(label));
+
     }
 }
 
