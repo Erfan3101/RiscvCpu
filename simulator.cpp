@@ -9,6 +9,8 @@ void Simulator::step() {
     uint32_t instr = memory.load_word(PC);
     PC += 4;
     execute(instr);
+    regs.commit(); // به‌روزرسانی نهایی ثبات‌ها
+
 }
 
 void Simulator::loadBinary(const std::string& filename) {
