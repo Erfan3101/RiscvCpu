@@ -33,6 +33,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_addbutton_clicked()
 {
+   // sim = Simulator(); // ریست
+
+    // سه دستور ساده:
+   // sim.memory1().store_word(0x1000, 0x00A00093); // addi x1, x0, 10
+    //sim.memory1().store_word(0x1004, 0x01400113); // addi x2, x0, 20
+   // sim.memory1().store_word(0x1008, 0x002081B3); // add x3, x1, x2
+
+    //updateRegisterView();
+   //updateStatus();
+   // updateCurrentInstruction();
+
     // Open file dialog to select .bin file
     QString filePath = QFileDialog::getOpenFileName(
         this,
@@ -113,7 +124,7 @@ void MainWindow::on_btnAutoRun_clicked()
            connect(autoRunTimer, &QTimer::timeout, this, &MainWindow::handleAutoRunStep);
        }
 
-       autoRunTimer->start(500); // هر ۵۰۰ میلی‌ثانیه یک گام اجرا می‌شود
+       autoRunTimer->start(2000); // هر2 میلی‌ثانیه یک گام اجرا می‌شود
 }
 
 void MainWindow::handleAutoRunStep() {
