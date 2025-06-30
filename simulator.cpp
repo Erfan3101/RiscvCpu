@@ -135,6 +135,7 @@ void Simulator::execute(uint32_t instruction) {
         default:
             std::cerr << "Unknown instruction opcode: 0x" << std::hex << opcode << "\n";
             break;
+
     }
 }
 uint32_t Simulator::getRegisterValue(int idx) {
@@ -149,6 +150,9 @@ uint32_t Simulator::getRegisterValue(int index) const {
 
 uint32_t Simulator::getPC() const {
     return PC;
+}
+void Simulator::setPC(uint32_t newPC) {
+    PC = newPC;
 }
 const std::vector<QString>& Simulator::getClockLog() const {
     return clockLog;
@@ -181,4 +185,10 @@ QString Simulator::getInput() {
     QString temp = inputBuffer;
     inputBuffer.clear();
     return temp;
+}
+void Simulator::loadFromRawData(const QByteArray& data) {
+    uint32_t addr = 0x1000;
+    for (int i = 0; i < data.size(); ++i) {
+        memory.store_byte(addr + i, static_cast<uint8_t>(data[i]));
+    }
 }

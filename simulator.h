@@ -15,6 +15,7 @@ public:
     Memory& memory1();
     uint32_t getRegisterValue(int index) const;
     uint32_t getPC() const;
+    void setPC(uint32_t);
     void execute(uint32_t instruction);
     void updateRegisterLog();
     const std::vector<QString>& getClockLog() const;
@@ -22,6 +23,8 @@ public:
     void writeOutput(const QString &text);
     void provideInput(const QString &text);
     QString getInput();
+    void loadFromRawData(const QByteArray& data);
+
 private:
 
     Memory memory;

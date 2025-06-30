@@ -35,20 +35,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_addbutton_clicked()
 {
-   sim = Simulator(); // ریست
+    sim = Simulator(); // ریست کامل شبیه‌ساز
 
-    // سه دستور ساده:
-    sim.memory1().store_word(0x1000, 0x00A00093); // addi x1, x0, 10
-    sim.memory1().store_word(0x1004, 0x01400113); // addi x2, x0, 20
-    sim.memory1().store_word(0x1008, 0x002081B3); // add x3, x1, x2
-
-    updateRegisterView();
-   updateStatus();
-    updateCurrentInstruction();
-    updateMemoryView();
-    sim.memory1().store_word(0x1000, 0x0070027B); // in x5
-    sim.memory1().store_word(0x1004, 0x0050027C); // out x5
-    // Open file dialog to select .bin file
     QString filePath = QFileDialog::getOpenFileName(
         this,
         tr("Select Binary File"),
@@ -57,24 +45,28 @@ void MainWindow::on_addbutton_clicked()
     );
 
     if (filePath.isEmpty()) {
-        return;  // User cancelled
+        return;
     }
 
-    // Open and read the file
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
         QMessageBox::critical(this, tr("Error"), tr("Could not open file!"));
         return;
     }
 
-    // Store the data and path for future processing
     binaryData = file.readAll();
     currentFilePath = filePath;
     file.close();
+
+    // ⚠️ این خط جدید: بارگذاری داده در حافظه شبیه‌ساز
+    sim.loadFromRawData(binaryData);
+    sim.setPC(0x1000); // نقطه شروع
+
     updateCurrentInstruction();
+    updateRegisterView();
+    updateMemoryView();
+    updateStatus();
 
-
-    // Optional: Show success message
     QMessageBox::information(
         this,
         tr("File Loaded"),
@@ -82,8 +74,8 @@ void MainWindow::on_addbutton_clicked()
             .arg(QFileInfo(filePath).fileName())
             .arg(binaryData.size())
     );
-    // Now you can access binaryData and currentFilePath from other functions
 }
+
 
 
 void MainWindow::on_btnStep_clicked(){
@@ -101,8 +93,9 @@ void MainWindow::on_btnReset_clicked()
 {
     sim = Simulator();
     updateRegisterView();
-    updateMemoryView();
+
     updateCurrentInstruction();
+    updateMemoryView();
     updateStatus();
 }
 
@@ -137,6 +130,7 @@ void MainWindow::on_btnAutoRun_clicked()
            autoRunTimer = new QTimer(this);
            connect(autoRunTimer, &QTimer::timeout, this, &MainWindow::handleAutoRunStep);
        }
+    updateMemoryView();
     autoRunTimer->start(2000);// هر2 میلی‌ثانیه یک گام اجرا می‌شود
 }
 
@@ -150,7 +144,7 @@ void MainWindow::handleAutoRunStep() {
 
     sim.step();
     updateRegisterView();
-    updateMemoryView();
+
     updateStatus();
     updateCurrentInstruction();
 }
