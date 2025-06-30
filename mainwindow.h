@@ -27,6 +27,7 @@ private slots:
      void handleAutoRunStep();
      void on_btnRunAll_clicked();
      void updateMemoryView(uint32_t startAddr = 0x1000, int numWords = 16);
+     void on_btnSendInput_clicked();
 
 
 private:
@@ -35,7 +36,7 @@ private:
     QString currentFilePath;
     Simulator sim;
     QTimer *autoRunTimer = nullptr;
-
+    QString userInput;
        // Store the file path
 };
 #endif // MAINWINDOW_H

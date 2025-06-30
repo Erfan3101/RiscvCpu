@@ -4,6 +4,7 @@
 #include "memory.h"
 #include "registerfile.h"
 #include <string>
+#include <QString>
 
 class Simulator {
 public:
@@ -14,14 +15,23 @@ public:
     Memory& memory1();
     uint32_t getRegisterValue(int index) const;
     uint32_t getPC() const;
-
+    void execute(uint32_t instruction);
+    void updateRegisterLog();
+    const std::vector<QString>& getClockLog() const;
+    QString getOutput() const;
+    void writeOutput(const QString &text);
+    void provideInput(const QString &text);
+    QString getInput();
 private:
 
     Memory memory;
     RegisterFile regs;
     uint32_t PC;
-
-    void execute(uint32_t instruction);
+    std::vector<QString> clockLog;
+    int clockCycle = 0;
+    uint32_t prevRegs[32];
+    QString outputLog;
+    QString inputBuffer;
 
 };
 

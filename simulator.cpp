@@ -3,14 +3,17 @@
 #include <fstream>
 #include <cstdint>
 #include <QDebug>
-Simulator::Simulator() : PC(0x1000) {}
+Simulator::Simulator() : PC(0x1000) {
+    std::fill(std::begin(prevRegs), std::end(prevRegs), 0);
+}
 
 void Simulator::step() {
     uint32_t instr = memory.load_word(PC);
     PC += 4;
     execute(instr);
     regs.commit(); // به‌روزرسانی نهایی ثبات‌ها
-
+    clockCycle++;
+    updateRegisterLog();
 
 }
 
@@ -146,4 +149,36 @@ uint32_t Simulator::getRegisterValue(int index) const {
 
 uint32_t Simulator::getPC() const {
     return PC;
+}
+const std::vector<QString>& Simulator::getClockLog() const {
+    return clockLog;
+}
+
+void Simulator::updateRegisterLog() {
+    for (int i = 0; i < 32; ++i) {
+        uint32_t newVal = regs.read(i);
+        if (newVal != prevRegs[i]) {
+            clockLog.push_back(QString("T%1: x%2 ← %3")
+                               .arg(clockCycle)
+                               .arg(i)
+                               .arg(newVal));
+            prevRegs[i] = newVal;
+        }
+    }
+}
+QString Simulator::getOutput() const {
+    return outputLog;
+}
+
+void Simulator::writeOutput(const QString &text) {
+    outputLog += text;
+}
+void Simulator::provideInput(const QString &text) {
+    inputBuffer = text;
+}
+
+QString Simulator::getInput() {
+    QString temp = inputBuffer;
+    inputBuffer.clear();
+    return temp;
 }

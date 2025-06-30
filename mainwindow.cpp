@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
            ui->registerTable->setItem(i, 0, new QTableWidgetItem(QString("x%1").arg(i)));
            ui->registerTable->setItem(i, 1, new QTableWidgetItem("0"));
        }
+       ui->outputBox->setText(sim.getOutput());
+
        updateMemoryView(); // مقداردهی اولیه جدول حافظه هنگام باز شدن برنامه
        updateStatus();
 }
@@ -33,17 +35,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_addbutton_clicked()
 {
-   // sim = Simulator(); // ریست
+   sim = Simulator(); // ریست
 
     // سه دستور ساده:
-   // sim.memory1().store_word(0x1000, 0x00A00093); // addi x1, x0, 10
-    //sim.memory1().store_word(0x1004, 0x01400113); // addi x2, x0, 20
-   // sim.memory1().store_word(0x1008, 0x002081B3); // add x3, x1, x2
+    sim.memory1().store_word(0x1000, 0x00A00093); // addi x1, x0, 10
+    sim.memory1().store_word(0x1004, 0x01400113); // addi x2, x0, 20
+    sim.memory1().store_word(0x1008, 0x002081B3); // add x3, x1, x2
 
-    //updateRegisterView();
-   //updateStatus();
-   // updateCurrentInstruction();
-
+    updateRegisterView();
+   updateStatus();
+    updateCurrentInstruction();
+    updateMemoryView();
+    sim.memory1().store_word(0x1000, 0x0070027B); // in x5
+    sim.memory1().store_word(0x1004, 0x0050027C); // out x5
     // Open file dialog to select .bin file
     QString filePath = QFileDialog::getOpenFileName(
         this,
@@ -68,7 +72,7 @@ void MainWindow::on_addbutton_clicked()
     currentFilePath = filePath;
     file.close();
     updateCurrentInstruction();
-    updateMemoryView();
+
 
     // Optional: Show success message
     QMessageBox::information(
@@ -85,8 +89,9 @@ void MainWindow::on_addbutton_clicked()
 void MainWindow::on_btnStep_clicked(){
     sim.step();
       updateRegisterView();
-      updateCurrentInstruction();
       updateMemoryView();
+      updateCurrentInstruction();
+
       updateStatus();
 
 }
@@ -96,8 +101,8 @@ void MainWindow::on_btnReset_clicked()
 {
     sim = Simulator();
     updateRegisterView();
-    updateCurrentInstruction();
     updateMemoryView();
+    updateCurrentInstruction();
     updateStatus();
 }
 
@@ -110,6 +115,12 @@ void MainWindow::updateRegisterView() {
 
 void MainWindow::updateStatus() {
     ui->labelPC->setText(QString("PC = 0x%1").arg(sim.getPC(), 8, 16, QLatin1Char('0')));
+    QString logText;
+    for (const auto& line : sim.getClockLog()) {
+        logText += line + "\n";
+    }
+    ui->clockLogBox->setText(logText);
+
 }
 void MainWindow::updateCurrentInstruction() {
     uint32_t pc = sim.getPC();
@@ -126,8 +137,7 @@ void MainWindow::on_btnAutoRun_clicked()
            autoRunTimer = new QTimer(this);
            connect(autoRunTimer, &QTimer::timeout, this, &MainWindow::handleAutoRunStep);
        }
-       updateMemoryView();
-       autoRunTimer->start(2000);// هر2 میلی‌ثانیه یک گام اجرا می‌شود
+    autoRunTimer->start(2000);// هر2 میلی‌ثانیه یک گام اجرا می‌شود
 }
 
 void MainWindow::handleAutoRunStep() {
@@ -140,6 +150,7 @@ void MainWindow::handleAutoRunStep() {
 
     sim.step();
     updateRegisterView();
+    updateMemoryView();
     updateStatus();
     updateCurrentInstruction();
 }
@@ -156,9 +167,10 @@ void MainWindow::on_btnRunAll_clicked()
         }
 
         updateRegisterView();
+        updateMemoryView();
         updateStatus();
         updateCurrentInstruction();
-        updateMemoryView();
+
 
         QMessageBox::information(this, "Run Complete", "This is the end...");
 }
@@ -202,4 +214,15 @@ void MainWindow::updateMemoryView(uint32_t startAddr, int count) {
     }
 }
 
+void MainWindow::on_btnSendInput_clicked() {
+    userInput = ui->inputBox->text().trimmed();
+
+       if (userInput.isEmpty()) return;
+
+       sim.provideInput(userInput); // ارسال به شبیه‌ساز
+       sim.writeOutput("👤 User input: " + userInput + "\n");
+
+       ui->outputBox->setText(sim.getOutput());
+       ui->inputBox->clear();
+}
 
