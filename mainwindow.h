@@ -26,6 +26,8 @@ private slots:
      void on_btnAutoRun_clicked();
      void handleAutoRunStep();
      void on_btnRunAll_clicked();
+     void updateMemoryView(uint32_t startAddr = 0x1000, int numWords = 16);
+
 
 private:
     Ui::MainWindow *ui;

@@ -38,6 +38,9 @@
        <height>41</height>
       </rect>
      </property>
+     <property name="styleSheet">
+      <string notr="true">alternate-background-color: rgb(170, 255, 255);</string>
+     </property>
      <property name="text">
       <string>TextLabel</string>
      </property>
@@ -153,6 +156,29 @@ background-color: rgb(255, 255, 127);</string>
     <property name="text">
      <string/>
     </property>
+   </widget>
+   <widget class="QWidget" name="widget_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>390</x>
+      <y>9</y>
+      <width>381</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(170, 255, 127);</string>
+    </property>
+    <widget class="QTableWidget" name="memoryTable">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>256</width>
+       <height>121</height>
+      </rect>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

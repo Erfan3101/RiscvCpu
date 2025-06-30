@@ -11,6 +11,7 @@ void Simulator::step() {
     execute(instr);
     regs.commit(); // به‌روزرسانی نهایی ثبات‌ها
 
+
 }
 
 void Simulator::loadBinary(const std::string& filename) {

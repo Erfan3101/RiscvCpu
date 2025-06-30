@@ -68,6 +68,7 @@ void MainWindow::on_addbutton_clicked()
     currentFilePath = filePath;
     file.close();
     updateCurrentInstruction();
+    updateMemoryView();
 
     // Optional: Show success message
     QMessageBox::information(
@@ -77,7 +78,6 @@ void MainWindow::on_addbutton_clicked()
             .arg(QFileInfo(filePath).fileName())
             .arg(binaryData.size())
     );
-
     // Now you can access binaryData and currentFilePath from other functions
 }
 
@@ -86,7 +86,9 @@ void MainWindow::on_btnStep_clicked(){
     sim.step();
       updateRegisterView();
       updateCurrentInstruction();
+      updateMemoryView();
       updateStatus();
+
 }
 
 
@@ -95,6 +97,7 @@ void MainWindow::on_btnReset_clicked()
     sim = Simulator();
     updateRegisterView();
     updateCurrentInstruction();
+    updateMemoryView();
     updateStatus();
 }
 
@@ -123,8 +126,8 @@ void MainWindow::on_btnAutoRun_clicked()
            autoRunTimer = new QTimer(this);
            connect(autoRunTimer, &QTimer::timeout, this, &MainWindow::handleAutoRunStep);
        }
-
-       autoRunTimer->start(2000); // هر2 میلی‌ثانیه یک گام اجرا می‌شود
+       updateMemoryView();
+       autoRunTimer->start(2000);// هر2 میلی‌ثانیه یک گام اجرا می‌شود
 }
 
 void MainWindow::handleAutoRunStep() {
@@ -155,7 +158,25 @@ void MainWindow::on_btnRunAll_clicked()
         updateRegisterView();
         updateStatus();
         updateCurrentInstruction();
+        updateMemoryView();
 
         QMessageBox::information(this, "Run Complete", "This is the end...");
+}
+
+void MainWindow::updateMemoryView(uint32_t start, int count) {
+    ui->memoryTable->setRowCount(count);
+    ui->memoryTable->setColumnCount(2);
+    ui->memoryTable->setHorizontalHeaderLabels({"Address", "Value"});
+
+    for (int i = 0; i < count; ++i) {
+        uint32_t addr = start + i * 4;
+        uint32_t val = sim.memory1().load_word(addr);
+
+        auto *addrItem = new QTableWidgetItem(QString("0x%1").arg(addr, 8, 16, QLatin1Char('0')));
+        auto *valItem  = new QTableWidgetItem(QString("0x%1").arg(val, 8, 16, QLatin1Char('0')));
+
+        ui->memoryTable->setItem(i, 0, addrItem);
+        ui->memoryTable->setItem(i, 1, valItem);
+    }
 }
 
