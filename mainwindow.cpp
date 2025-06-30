@@ -56,6 +56,7 @@ void MainWindow::on_addbutton_clicked()
     binaryData = file.readAll();
     currentFilePath = filePath;
     file.close();
+    updateCurrentInstruction();
 
     // Optional: Show success message
     QMessageBox::information(
@@ -73,6 +74,7 @@ void MainWindow::on_addbutton_clicked()
 void MainWindow::on_btnStep_clicked(){
     sim.step();
       updateRegisterView();
+      updateCurrentInstruction();
       updateStatus();
 }
 
@@ -81,6 +83,7 @@ void MainWindow::on_btnReset_clicked()
 {
     sim = Simulator();
     updateRegisterView();
+    updateCurrentInstruction();
     updateStatus();
 }
 
@@ -93,4 +96,36 @@ void MainWindow::updateRegisterView() {
 
 void MainWindow::updateStatus() {
     ui->labelPC->setText(QString("PC = 0x%1").arg(sim.getPC(), 8, 16, QLatin1Char('0')));
+}
+void MainWindow::updateCurrentInstruction() {
+    uint32_t pc = sim.getPC();
+    uint32_t instr = sim.memory1().load_word(pc);
+
+    ui->labelInstr->setText(QString("Instr @ 0x%1: 0x%2")
+                            .arg(pc, 8, 16, QLatin1Char('0'))
+                            .arg(instr, 8, 16, QLatin1Char('0')));
+}
+
+void MainWindow::on_btnAutoRun_clicked()
+{
+    if (!autoRunTimer) {
+           autoRunTimer = new QTimer(this);
+           connect(autoRunTimer, &QTimer::timeout, this, &MainWindow::handleAutoRunStep);
+       }
+
+       autoRunTimer->start(500); // هر ۵۰۰ میلی‌ثانیه یک گام اجرا می‌شود
+}
+
+void MainWindow::handleAutoRunStep() {
+    uint32_t instr = sim.memory1().load_word(sim.getPC());
+    if (instr == 0x00000000) {
+        autoRunTimer->stop();
+        QMessageBox::information(this, "Auto Run", "برنامه به پایان رسید!");
+        return;
+    }
+
+    sim.step();
+    updateRegisterView();
+    updateStatus();
+    updateCurrentInstruction();
 }

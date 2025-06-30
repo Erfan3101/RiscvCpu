@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTimer>
 #include "simulator.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,19 +18,20 @@ public:
      void on_addButton_clicked();
 private slots:
      void on_addbutton_clicked();
-
      void on_btnStep_clicked();
-
      void on_btnReset_clicked();
-
+     void updateCurrentInstruction();
+     void updateRegisterView();
+     void updateStatus();
+     void on_btnAutoRun_clicked();
+     void handleAutoRunStep();
 private:
     Ui::MainWindow *ui;
     QByteArray binaryData;        // Store the binary data for future processing
-       QString currentFilePath;
-       Simulator sim;
+    QString currentFilePath;
+    Simulator sim;
+    QTimer *autoRunTimer = nullptr;
 
-       void updateRegisterView();
-       void updateStatus();
        // Store the file path
 };
 #endif // MAINWINDOW_H
