@@ -21,7 +21,7 @@
     <property name="geometry">
      <rect>
       <x>390</x>
-      <y>150</y>
+      <y>170</y>
       <width>381</width>
       <height>201</height>
      </rect>
@@ -163,7 +163,7 @@ background-color: rgb(255, 255, 127);</string>
       <x>390</x>
       <y>9</y>
       <width>381</width>
-      <height>131</height>
+      <height>151</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -172,10 +172,10 @@ background-color: rgb(255, 255, 127);</string>
     <widget class="QTableWidget" name="memoryTable">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>0</y>
-       <width>256</width>
-       <height>121</height>
+       <x>0</x>
+       <y>10</y>
+       <width>381</width>
+       <height>141</height>
       </rect>
      </property>
     </widget>

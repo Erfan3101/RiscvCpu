@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
            ui->registerTable->setItem(i, 0, new QTableWidgetItem(QString("x%1").arg(i)));
            ui->registerTable->setItem(i, 1, new QTableWidgetItem("0"));
        }
-
+       updateMemoryView(); // مقداردهی اولیه جدول حافظه هنگام باز شدن برنامه
        updateStatus();
 }
 
@@ -163,20 +163,20 @@ void MainWindow::on_btnRunAll_clicked()
         QMessageBox::information(this, "Run Complete", "This is the end...");
 }
 
-void MainWindow::updateMemoryView(uint32_t start, int count) {
+void MainWindow::updateMemoryView(uint32_t startAddr, int count) {
     ui->memoryTable->setRowCount(count);
-    ui->memoryTable->setColumnCount(2);
-    ui->memoryTable->setHorizontalHeaderLabels({"Address", "Value"});
+    ui->memoryTable->setColumnCount(4);
+    ui->memoryTable->setHorizontalHeaderLabels({"Address", "Hex", "Decimal", "ASCII"});
 
     for (int i = 0; i < count; ++i) {
-        uint32_t addr = start + i * 4;
-        uint32_t val = sim.memory1().load_word(addr);
+        uint32_t addr = startAddr + i;
+        uint8_t val = sim.memory1().load_byte(addr); // پیش‌فرض 0
 
-        auto *addrItem = new QTableWidgetItem(QString("0x%1").arg(addr, 8, 16, QLatin1Char('0')));
-        auto *valItem  = new QTableWidgetItem(QString("0x%1").arg(val, 8, 16, QLatin1Char('0')));
-
-        ui->memoryTable->setItem(i, 0, addrItem);
-        ui->memoryTable->setItem(i, 1, valItem);
+        ui->memoryTable->setItem(i, 0, new QTableWidgetItem(QString("0x%1").arg(addr, 4, 16, QChar('0'))));
+        ui->memoryTable->setItem(i, 1, new QTableWidgetItem(QString("0x%1").arg(val, 2, 16, QChar('0'))));
+        ui->memoryTable->setItem(i, 2, new QTableWidgetItem(QString::number(val)));
+        ui->memoryTable->setItem(i, 3, new QTableWidgetItem((val >= 32 && val <= 126) ? QString(QChar(val)) : "."));
     }
 }
+
 
