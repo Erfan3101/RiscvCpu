@@ -3,5 +3,7 @@
         <file>addicon.png</file>
         <file>reseticon.png</file>
         <file>setupicon.png</file>
+        <file>autorunicon.png</file>
+        <file>fastrunicon.png</file>
     </qresource>
 </RCC>

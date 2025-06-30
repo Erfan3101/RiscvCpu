@@ -25,6 +25,8 @@ private slots:
      void updateStatus();
      void on_btnAutoRun_clicked();
      void handleAutoRunStep();
+     void on_btnRunAll_clicked();
+
 private:
     Ui::MainWindow *ui;
     QByteArray binaryData;        // Store the binary data for future processing

@@ -120,7 +120,7 @@ void MainWindow::handleAutoRunStep() {
     uint32_t instr = sim.memory1().load_word(sim.getPC());
     if (instr == 0x00000000) {
         autoRunTimer->stop();
-        QMessageBox::information(this, "Auto Run", "برنامه به پایان رسید!");
+        QMessageBox::information(this, "Auto Run", "This is the end...!");
         return;
     }
 
@@ -129,3 +129,22 @@ void MainWindow::handleAutoRunStep() {
     updateStatus();
     updateCurrentInstruction();
 }
+
+void MainWindow::on_btnRunAll_clicked()
+{
+    int steps = 0;
+        while (true) {
+            uint32_t instr = sim.memory1().load_word(sim.getPC());
+            if (instr == 0x00000000 || steps > 1000) break; // پایان یا جلوگیری از loop بی‌نهایت
+
+            sim.step();
+            steps++;
+        }
+
+        updateRegisterView();
+        updateStatus();
+        updateCurrentInstruction();
+
+        QMessageBox::information(this, "Run Complete", "This is the end...");
+}
+

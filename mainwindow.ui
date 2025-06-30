@@ -126,8 +126,29 @@ background-color: rgb(255, 255, 127);</string>
       <height>61</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/icons/autorunicon.png);
+background-color: rgb(255, 255, 127);</string>
+    </property>
     <property name="text">
-     <string>PushButton</string>
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnRunAll">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>73</y>
+      <width>61</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">image: url(:/icons/fastrunicon.png);
+background-color: rgb(255, 255, 127);</string>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
