@@ -37,7 +37,6 @@ QMap<QString, InstrFormat> instrMap = {
     {"rem",   {"R", "0110011", "110", "0000001"}}
 };
 
-// ... اینجا باقی توابع مانند intToBinary، encodeR، encodeI، assembleLine و ... قرار می‌گیرند که از اسمبلر اصلی کپی می‌کنی ...
 int regToNum(const QString& reg) {
     static QMap<QString, int> regMap = {
         {"R0",0},{"R1",1},{"R2",2},{"R3",3},
@@ -46,7 +45,6 @@ int regToNum(const QString& reg) {
     return regMap.value(reg.toUpper(), -1);
 }
 
-// ØªØ¨Ø¯ÛŒÙ„ Ø¹Ø¯Ø¯ ØµØ­ÛŒØ­ Ø¨Ù‡ Ø±Ø´ØªÙ‡ Ø¨Ø§ÛŒÙ†Ø±ÛŒ Ø¨Ø§ Ø·ÙˆÙ„ bits (Ù…Ú©Ù…Ù„ Ø¯Ùˆ Ø¨Ø±Ø§ÛŒ Ø§Ø¹Ø¯Ø§Ø¯ Ù…Ù†ÙÛŒ)
 QString intToBinary(int num, int bits) {
     if (bits <= 0) return "";
     unsigned int mask = (1u << bits) - 1;
@@ -58,9 +56,7 @@ QString intToBinary(int num, int bits) {
     return bin;
 }
 
-// ØªÙˆØ§Ø¨Ø¹ Ø±Ù…Ø²Ú¯Ø°Ø§Ø±ÛŒ Ø§Ù†ÙˆØ§Ø¹ Ø¯Ø³ØªÙˆØ±Ù‡Ø§:
 QString encodeR(int rd, int rs1, int rs2, const InstrFormat& fmt) {
-    // funct7(7) | rs2(3) | rs1(3) | funct3(3) | rd(3) | opcode(7)
     return fmt.funct7 +
         intToBinary(rs2, 5) +
         intToBinary(rs1, 5) +
@@ -70,7 +66,6 @@ QString encodeR(int rd, int rs1, int rs2, const InstrFormat& fmt) {
 }
 
 QString encodeI(int rd, int rs1, int imm, const InstrFormat& fmt) {
-    // imm(6) | rs1(3) | funct3(3) | rd(3) | opcode(7)
     return intToBinary(imm, 12) +
         intToBinary(rs1, 5) +
         fmt.funct3 +
@@ -79,11 +74,9 @@ QString encodeI(int rd, int rs1, int imm, const InstrFormat& fmt) {
 }
 
 QString encodeS(int rs1, int rs2, int imm, const InstrFormat& fmt) {
-    // imm(6) split: imm[5:3], imm[2:0]
     QString imm_bin = intToBinary(imm, 12);
     QString imm_11_5 = imm_bin.mid(0, 7);
     QString imm_4_0 = imm_bin.mid(7, 5);
-    // imm[5:3] | rs2(3) | rs1(3) | funct3(3) | imm[2:0] | opcode(7)
     return imm_11_5 +
         intToBinary(rs2, 5) +
         intToBinary(rs1, 5) +
@@ -93,7 +86,6 @@ QString encodeS(int rs1, int rs2, int imm, const InstrFormat& fmt) {
 }
 
 QString encodeB(int rs1, int rs2, int imm, const InstrFormat& fmt) {
-    // imm(6) split as needed â€” Ø¨Ø±Ø§ÛŒ Ù¾Ø±ÙˆÚ˜Ù‡ ÙØ±Ø¶ Ù…ÛŒâ€ŒÚ©Ù†ÛŒÙ… Ù‡Ù…ÛŒÙ† 6 Ø¨ÛŒØª Ø¨Ø§ Ø¬Ø§Ú¯Ø°Ø§Ø±ÛŒ Ø³Ø§Ø¯Ù‡
     QString imm_bin = intToBinary(imm, 13);
     QString imm12 = imm_bin.mid(0, 1);
     QString imm10_5 = imm_bin.mid(1, 6);
@@ -106,7 +98,7 @@ QString encodeB(int rs1, int rs2, int imm, const InstrFormat& fmt) {
         fmt.funct3 +
         imm4_1 +
         imm11 +
-        "000" + // placeholder for Ø¨ÛŒØªâ€ŒÙ‡Ø§ÛŒ imm Ø§Ø¶Ø§ÙÛŒ Ø§Ú¯Ø± Ù†ÛŒØ§Ø² Ø¨Ø§Ø´Ù‡
+        "000" +
         fmt.opcode;
 }
 
@@ -124,20 +116,19 @@ QString encodeJ(int rd, int imm, const InstrFormat& fmt) {
         fmt.opcode;
 }
 
-// Ù…Ø±Ø­Ù„Ù‡ Ø§ÙˆÙ„: Ø§Ø³ØªØ®Ø±Ø§Ø¬ LabelÙ‡Ø§ (Ø¢Ø¯Ø±Ø³ Ø®Ø·) Ø§Ø² Ù„ÛŒØ³Øª Ø¯Ø³ØªÙˆØ±Ø§Øª
 QMap<QString, int> extractLabels(const QStringList& lines) {
     QMap<QString, int> labels;
     for (int i = 0; i < lines.size(); ++i) {
         QString line = lines[i].trimmed();
         if (line.endsWith(":")) {
             QString label = line.left(line.length() - 1);
-            labels[label] = i; // Ø¢Ø¯Ø±Ø³ Ø®Ø·
+            labels[label] = i;
         }
     }
     return labels;
 }
 
-// Ø­Ø°Ù Ø®Ø·ÙˆØ· Label Ø§Ø² Ù„ÛŒØ³Øª Ø¯Ø³ØªÙˆØ±Ø§Øª (Ø¨Ø±Ø§ÛŒ Ù…Ø±Ø­Ù„Ù‡ Ø¯ÙˆÙ…)
+
 QStringList removeLabels(const QStringList& lines) {
     QStringList result;
     for (const QString& line : lines) {
@@ -155,8 +146,6 @@ QString getInstrName(const QString& line) {
         return trimmed.toLower();
     return trimmed.left(spaceIdx).toLower();
 }
-
-// ØªØ¨Ø¯ÛŒÙ„ ÛŒÚ© Ø¯Ø³ØªÙˆØ± Ø¨Ù‡ Ø¨Ø§ÛŒÙ†Ø±ÛŒ Ø¨Ø§ Ø¬Ø§ÛŒÚ¯Ø°Ø§Ø±ÛŒ Ø¨Ø±Ú†Ø³Ø¨â€ŒÙ‡Ø§ (offset)
 QString assembleLine(const QString& line, const QMap<QString, int>& labels, int currentLine) {
     if (line.trimmed().isEmpty()) return "";
 
@@ -171,8 +160,6 @@ QString assembleLine(const QString& line, const QMap<QString, int>& labels, int 
     }
 
     InstrFormat fmt = instrMap[instr];
-
-    // Ø¨Ø³ØªÙ‡ Ø¨Ù‡ Ù†ÙˆØ¹ Ø¯Ø³ØªÙˆØ±ØŒ Ù¾Ø§Ø±Ø§Ù…ØªØ±Ù‡Ø§ Ø±Ø§ Ù¾Ø±Ø¯Ø§Ø²Ø´ Ú©Ù†
     if (fmt.type == "R") {
         if (parts.size() != 4) {
             qDebug() << "The R command format is incorrect.:" << line;
@@ -192,30 +179,44 @@ QString assembleLine(const QString& line, const QMap<QString, int>& labels, int 
             qDebug() << "The format of the I command is incorrect:" << line;
             return "";
         }
+
         int rd = regToNum(parts[1]);
-        int rs1 = 0;
+        int rs1 = -1;
         int imm = 0;
         bool ok = false;
 
-        // Ø¯Ø³ØªÙˆØ± jalr Ø­Ø§Ù„Øª Ø®Ø§ØµÛŒ Ø¯Ø§Ø±Ø¯ (Ù…Ø«Ù„Ø§Ù‹ jalr rd, imm(rs1))
-        if (instr == "jalr" && parts.size() == 4) {
+        // حالت lw/lh/... با offset صریح: lw R2, 0, R1
+        if (parts.size() == 4) {
             imm = parts[2].toInt(&ok);
             rs1 = regToNum(parts[3]);
-            if (!ok || rd < 0 || rs1 < 0) {
-                qDebug() << "Invalid username or register:" << line;
-                return "";
-            }
         }
-        else {
+        // حالت jalr یا addi معمولی: addi R1, R2, 10
+        else if (parts.size() == 4) {
             rs1 = regToNum(parts[2]);
             imm = parts[3].toInt(&ok);
-            if (!ok || rd < 0 || rs1 < 0) {
-                qDebug() << "Invalid ID or register:" << line;
+        }
+        // حالت خاص: lw R2, 0(R1)
+        else if (parts.size() == 3 && parts[2].contains('(')) {
+            QRegularExpression re(R"(([-]?\d+)\((R\d+)\))");
+            QRegularExpressionMatch match = re.match(parts[2]);
+
+            if (match.hasMatch()) {
+                imm = match.captured(1).toInt(&ok);
+                rs1 = regToNum(match.captured(2));
+            } else {
+                qDebug() << "Invalid offset format:" << parts[2];
                 return "";
             }
         }
+
+        if (!ok || rd < 0 || rs1 < 0) {
+            qDebug() << "Invalid operands for I-type:" << line;
+            return "";
+        }
+
         return encodeI(rd, rs1, imm, fmt);
     }
+
     else if (fmt.type == "S") {
         if (parts.size() != 4) {
             qDebug() << "S command format is incorrect:" << line;

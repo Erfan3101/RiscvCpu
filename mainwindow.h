@@ -26,10 +26,9 @@ private slots:
      void on_btnAutoRun_clicked();
      void handleAutoRunStep();
      void on_btnRunAll_clicked();
-     void updateMemoryView(uint32_t startAddr = 0x1000, int numWords = 16);
-     QStringList assembleProgramFromText(const QString& asmCode);
-     void loadBinaryLinesToMemory(const QStringList& binaryLines);
-
+     void updateMemoryView(uint32_t startAddr = 0x1000, int numWords = 16);  
+     QStringList assembleProgramFromText(const QString& asmCode,QStringList& errors);
+     void loadBinaryLinesToMemory(const QStringList&);
      void on_btnAssembleAndRun_clicked();
 
 private:
@@ -38,6 +37,6 @@ private:
     QString currentFilePath;
     Simulator sim;
     QTimer *autoRunTimer = nullptr;
-       // Store the file path
+    QVector<int> errorLines;
 };
 #endif // MAINWINDOW_H
