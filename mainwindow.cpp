@@ -218,7 +218,14 @@ void MainWindow::updateMemoryView(uint32_t startAddr, int count) {
 }
 
 QStringList MainWindow::assembleProgramFromText(const QString& asmCode, QStringList& errors) {
-    QStringList lines = asmCode.split('\n');
+    QStringList rawLines = asmCode.split('\n');
+    QStringList lines;
+    for (const QString& line : rawLines) {
+        if (!line.trimmed().isEmpty()) {
+            lines.append(line);
+        }
+    }
+
     QMap<QString, int> labels = extractLabels(lines);
     QStringList pureLines = removeLabels(lines);
 

@@ -5,5 +5,8 @@
         <file>setupicon.png</file>
         <file>autorunicon.png</file>
         <file>fastrunicon.png</file>
+        <file>intel-chips-1.png</file>
+        <file>cpuinicator.jpg</file>
+        <file>manologo.png</file>
     </qresource>
 </RCC>

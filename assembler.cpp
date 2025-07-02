@@ -181,41 +181,39 @@ QString assembleLine(const QString& line, const QMap<QString, int>& labels, int 
         }
 
         int rd = regToNum(parts[1]);
-        int rs1 = -1;
+        int rs1 = 0;
         int imm = 0;
         bool ok = false;
 
-        // حالت lw/lh/... با offset صریح: lw R2, 0, R1
-        if (parts.size() == 4) {
-            imm = parts[2].toInt(&ok);
-            rs1 = regToNum(parts[3]);
-        }
-        // حالت jalr یا addi معمولی: addi R1, R2, 10
-        else if (parts.size() == 4) {
-            rs1 = regToNum(parts[2]);
-            imm = parts[3].toInt(&ok);
-        }
-        // حالت خاص: lw R2, 0(R1)
-        else if (parts.size() == 3 && parts[2].contains('(')) {
-            QRegularExpression re(R"(([-]?\d+)\((R\d+)\))");
+        // حالت lw/lh/lb/... مثل: lw R2, 0(R1)
+        if (parts.size() == 3 &&parts[2].contains('(')) {
+            QRegularExpression re(R"(^(.*)\((.*)\)$)");
             QRegularExpressionMatch match = re.match(parts[2]);
-
             if (match.hasMatch()) {
                 imm = match.captured(1).toInt(&ok);
                 rs1 = regToNum(match.captured(2));
             } else {
-                qDebug() << "Invalid offset format:" << parts[2];
+                qDebug() << "Invalid I-type offset syntax:" << line;
                 return "";
             }
         }
+        // حالت addi یا jalr معمولی مثل: addi R1, R0, 10
+        else if (parts.size() >= 4) {
+            rs1 = regToNum(parts[2]);
+            imm = parts[3].toInt(&ok);
+        } else {
+            qDebug() << "Invalid I-type format (not enough parts):" << line;
+            return "";
+        }
 
         if (!ok || rd < 0 || rs1 < 0) {
-            qDebug() << "Invalid operands for I-type:" << line;
+            qDebug() << "Invalid operands in I-type:" << line;
             return "";
         }
 
         return encodeI(rd, rs1, imm, fmt);
     }
+
 
     else if (fmt.type == "S") {
         if (parts.size() != 4) {
