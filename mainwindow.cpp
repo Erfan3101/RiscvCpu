@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "memory.h"
+#include "assembler.h"
 #include "registerfile.h"
 #include <QLabel>
 #include <QPixmap>
@@ -20,8 +21,6 @@ MainWindow::MainWindow(QWidget *parent)
            ui->registerTable->setItem(i, 0, new QTableWidgetItem(QString("x%1").arg(i)));
            ui->registerTable->setItem(i, 1, new QTableWidgetItem("0"));
        }
-       ui->outputBox->setText(sim.getOutput());
-
        updateMemoryView(); // مقداردهی اولیه جدول حافظه هنگام باز شدن برنامه
        updateStatus();
 }
@@ -91,12 +90,19 @@ void MainWindow::on_btnStep_clicked(){
 
 void MainWindow::on_btnReset_clicked()
 {
-    sim = Simulator();
-    updateRegisterView();
+    sim = Simulator();  // بازسازی کامل شبیه‌ساز
 
-    updateCurrentInstruction();
-    updateMemoryView();
-    updateStatus();
+       ui->codeEditor->clear();              // خالی کردن ادیتور اسمبلی
+       ui->clockLogBox->clear();            // پاک کردن لاگ کلاک‌ه
+
+       currentFilePath.clear();             // ریست مسیر فایل باینری
+       binaryData.clear();                  // ریست داده‌های باینری بارگذاری‌شده
+
+       updateRegisterView();                // صفر شدن رجیسترها
+       updateMemoryView();                  // حافظه ریست شده
+       updateCurrentInstruction();          // پاک شدن نمایش دستور فعلی
+       updateStatus();                      // ریست وضعیت PC و کلاک‌ها
+
 }
 
 void MainWindow::updateRegisterView() {
@@ -208,15 +214,68 @@ void MainWindow::updateMemoryView(uint32_t startAddr, int count) {
     }
 }
 
-void MainWindow::on_btnSendInput_clicked() {
-    userInput = ui->inputBox->text().trimmed();
+QStringList MainWindow::assembleProgramFromText(const QString& asmCode) {
+    QStringList lines = asmCode.split('\n', Qt::SkipEmptyParts);
+    QMap<QString, int> labels = extractLabels(lines);
+    QStringList pureLines = removeLabels(lines);
 
-       if (userInput.isEmpty()) return;
+    QStringList binaryLines;
+    for (int i = 0; i < pureLines.size(); ++i) {
+        QString binary = assembleLine(pureLines[i], labels, i);
+        if (!binary.isEmpty()) {
+            binaryLines.append(binary);
+        }
+    }
+    return binaryLines;
+}
 
-       sim.provideInput(userInput); // ارسال به شبیه‌ساز
-       sim.writeOutput("👤 User input: " + userInput + "\n");
+void MainWindow::loadBinaryLinesToMemory(const QStringList& binaryLines) {
+    sim = Simulator(); // ریست
+    uint32_t addr = 0x1000;
+    for (const QString& bin : binaryLines) {
+        bool ok;
+        uint32_t instr = bin.toUInt(&ok, 2);
+        if (ok) {
+            sim.memory1().store_word(addr, instr);
+            addr += 4;
+        }
+    }
+    sim.setPC(0x1000); // شروع اجرا از 0x1000
 
-       ui->outputBox->setText(sim.getOutput());
-       ui->inputBox->clear();
+    updateRegisterView();
+    updateMemoryView();
+    updateStatus();
+    updateCurrentInstruction();
+}
+
+
+
+void MainWindow::on_btnAssembleAndRun_clicked()
+{
+    QString asmCode = ui->codeEditor->toPlainText();
+
+     QStringList binLines = assembleFromPlainText(asmCode);
+     if (binLines.isEmpty()) {
+         QMessageBox::critical(this, "Assembly Error", "Could not assemble the code.");
+         return;
+     }
+     sim = Simulator();
+     uint32_t addr = 0x1000;
+     for (const QString& bin : binLines) {
+         bool ok;
+         uint32_t instr = bin.toUInt(&ok, 2);
+         if (ok) {
+             sim.memory1().store_word(addr, instr);
+             addr += 4;
+         }
+     }
+
+     sim.setPC(0x1000);
+     updateRegisterView();
+     updateMemoryView();
+     updateStatus();
+     updateCurrentInstruction();
+
+     QMessageBox::information(this, "Assembled!", "Code assembled and loaded into simulator.");
 }
 

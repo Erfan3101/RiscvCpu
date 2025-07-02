@@ -170,22 +170,7 @@ void Simulator::updateRegisterLog() {
         }
     }
 }
-QString Simulator::getOutput() const {
-    return outputLog;
-}
 
-void Simulator::writeOutput(const QString &text) {
-    outputLog += text;
-}
-void Simulator::provideInput(const QString &text) {
-    inputBuffer = text;
-}
-
-QString Simulator::getInput() {
-    QString temp = inputBuffer;
-    inputBuffer.clear();
-    return temp;
-}
 void Simulator::loadFromRawData(const QByteArray& data) {
     uint32_t addr = 0x1000;
     for (int i = 0; i < data.size(); ++i) {
